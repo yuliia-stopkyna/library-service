@@ -20,9 +20,22 @@ class BorrowingSerializer(serializers.ModelSerializer):
         )
 
 
-class BorrowingReadSerializer(BorrowingSerializer):
+class BorrowingReadSerializer(serializers.ModelSerializer):
     book = BookSerializer(read_only=True, many=False)
-    user = serializers.CharField(source="user.get_full_name", read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    user_full_name = serializers.CharField(source="user.get_full_name", read_only=True)
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user_id",
+            "user_full_name",
+        )
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
@@ -33,7 +46,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             "borrow_date",
             "expected_return_date",
             "book",
-            "user",
         )
 
     def validate(self, attrs) -> dict:
