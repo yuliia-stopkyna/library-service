@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from borrowing.models import Borrowing
+from borrowing.serializers import BorrowingReadSerializer
+
+
+class BorrowingListApiView(generics.ListAPIView):
+    serializer_class = BorrowingReadSerializer
+    queryset = Borrowing.objects.select_related("book", "user")
+
+
+class BorrowingRetrieveApiView(generics.RetrieveAPIView):
+    serializer_class = BorrowingReadSerializer
+    queryset = Borrowing.objects.select_related("book", "user")
