@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
+    "django_q",
     "user",
     "book",
     "borrowing",
@@ -112,7 +113,7 @@ AUTH_USER_MODEL = "user.User"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Kiev"
 
 USE_I18N = True
 
@@ -136,6 +137,19 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {"AUTH_HEADER_NAME": "HTTP_AUTHORIZE"}
+
+Q_CLUSTER = {
+    "name": "library_service",
+    "workers": 8,
+    "recycle": 300,
+    "timeout": 60,
+    "label": "Django Q",
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "db": 0,
+    },
+}
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
