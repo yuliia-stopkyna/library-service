@@ -60,3 +60,14 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             borrowing = Borrowing.objects.create(**validated_data)
             Book.objects.filter(pk=book.id).update(inventory=book.inventory - 1)
             return borrowing
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ("id", "actual_return_date")
+
+    def validate(self, attrs) -> dict:
+        if self.instance.actual_return_date is not None:
+            raise ValidationError(detail="Borrowing has been already returned.")
+        return super().validate(attrs=attrs)
