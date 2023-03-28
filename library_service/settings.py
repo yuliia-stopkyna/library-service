@@ -143,6 +143,7 @@ Q_CLUSTER = {
     "workers": 8,
     "recycle": 300,
     "timeout": 60,
+    "catch_up": False,
     "label": "Django Q",
     "redis": {
         "host": "127.0.0.1",
