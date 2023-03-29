@@ -11,4 +11,9 @@ urlpatterns = [
         PaymentViewSet.as_view(actions={"get": "retrieve"}),
         name="payment-detail",
     ),
+    path(
+        "success/",
+        PaymentViewSet.as_view(actions={"get": "success"}),
+        name="payment-success",
+    )
 ]
