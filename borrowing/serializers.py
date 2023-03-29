@@ -63,7 +63,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             book = validated_data["book"]
             borrowing = Borrowing.objects.create(**validated_data)
 
-            create_stripe_session(borrowing, self.context["request"])
+            create_stripe_session(
+                borrowing, self.context["request"], payment_type="Payment"
+            )
             Book.objects.filter(pk=book.id).update(inventory=book.inventory - 1)
 
             message = "New borrowing created:\n" + get_borrowing_info(borrowing)
@@ -75,7 +77,8 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 class BorrowingReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
-        fields = ("id", "actual_return_date")
+        fields = ("id", "borrow_date", "expected_return_date", "actual_return_date")
+        read_only_fields = ("id", "borrow_date", "expected_return_date")
 
     def validate(self, attrs) -> dict:
         if self.instance.actual_return_date is not None:
