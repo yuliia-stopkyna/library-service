@@ -27,7 +27,9 @@ class BorrowingViewSet(
     def get_queryset(self) -> QuerySet:
         is_active = self.request.query_params.get("is_active")
         user_id = self.request.query_params.get("user_id")
-        queryset = Borrowing.objects.select_related("book", "user")
+        queryset = Borrowing.objects.select_related("book", "user").prefetch_related(
+            "payments"
+        )
 
         if is_active and is_active.lower() == "true":
             queryset = queryset.filter(actual_return_date__isnull=True)
