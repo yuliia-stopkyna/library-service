@@ -7,6 +7,7 @@ from book.serializers import BookSerializer
 from borrowing.models import Borrowing
 from borrowing.notifications import send_telegram_notification
 from borrowing.utils import get_borrowing_info
+from payment.models import Payment
 from payment.serializers import PaymentSerializer
 from payment.utils import create_stripe_session
 
@@ -54,11 +55,20 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs) -> dict:
         data = super().validate(attrs=attrs)
-        if attrs["book"].inventory > 0:
-            return data
-        raise ValidationError(detail="Book inventory is 0.")
+        user = self.context["request"].user
+        pending_payments = Payment.objects.filter(borrowing__user=user).filter(
+            status="Pending"
+        )
 
-    def create(self, validated_data):
+        if pending_payments:
+            raise ValidationError(
+                detail="You have one or more pending payments. You can't make borrowings until you pay for them."
+            )
+        if attrs["book"].inventory == 0:
+            raise ValidationError(detail="Book inventory is 0.")
+        return data
+
+    def create(self, validated_data) -> Borrowing:
         with transaction.atomic():
             book = validated_data["book"]
             borrowing = Borrowing.objects.create(**validated_data)
