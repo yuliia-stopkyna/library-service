@@ -14,6 +14,9 @@ from borrowing.serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from payment.models import Payment
+from payment.serializers import PaymentSerializer
+from payment.utils import create_stripe_session
 
 
 class BorrowingViewSet(
@@ -70,6 +73,8 @@ class BorrowingReturnAPIView(APIView):
             borrowing = get_object_or_404(Borrowing, pk=pk)
             book = borrowing.book
             actual_return_date = timezone.now().date()
+            expected_return_date = borrowing.expected_return_date
+
             serializer = BorrowingReturnSerializer(
                 borrowing, data={"actual_return_date": actual_return_date}, partial=True
             )
@@ -78,5 +83,26 @@ class BorrowingReturnAPIView(APIView):
                 serializer.save()
                 book.inventory += 1
                 book.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                data = {**serializer.validated_data}
+
+                if actual_return_date > expected_return_date:
+                    overdue = (actual_return_date - expected_return_date).days
+                    session = create_stripe_session(
+                        borrowing,
+                        self.request,
+                        payment_type="Fine",
+                        overdue_days=overdue,
+                    )
+
+                    payment = Payment.objects.get(session_id=session.id)
+                    payment_serializer = PaymentSerializer(payment)
+                    data.update(
+                        {
+                            "message": "Your return is overdue. Please provide fine payment.",
+                            **payment_serializer.data,
+                        }
+                    )
+
+                return Response(data, status=status.HTTP_200_OK)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
