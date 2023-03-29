@@ -3,6 +3,7 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import mixins, viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -19,6 +20,10 @@ from payment.serializers import PaymentSerializer
 from payment.utils import create_stripe_session
 
 
+class BorrowingPagination(PageNumberPagination):
+    page_size = 5
+
+
 class BorrowingViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
@@ -26,6 +31,7 @@ class BorrowingViewSet(
     viewsets.GenericViewSet,
 ):
     permission_classes = (IsAuthenticated,)
+    pagination_class = BorrowingPagination
 
     def get_queryset(self) -> QuerySet:
         is_active = self.request.query_params.get("is_active")

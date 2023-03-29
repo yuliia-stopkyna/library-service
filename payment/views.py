@@ -2,6 +2,7 @@ import stripe
 from django.db.models import QuerySet
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -10,11 +11,16 @@ from payment.models import Payment
 from payment.serializers import PaymentSerializer
 
 
+class PaymentPagination(PageNumberPagination):
+    page_size = 5
+
+
 class PaymentViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
     serializer_class = PaymentSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = PaymentPagination
 
     def get_queryset(self) -> QuerySet:
         queryset = Payment.objects.select_related("borrowing")
