@@ -45,14 +45,12 @@ class BorrowingReadSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(read_only=True, many=True)
+
     class Meta:
         model = Borrowing
-        fields = (
-            "id",
-            "borrow_date",
-            "expected_return_date",
-            "book",
-        )
+        fields = ("id", "borrow_date", "expected_return_date", "book", "payments")
+        read_only_fields = ("id", "payments")
 
     def validate(self, attrs) -> dict:
         data = super().validate(attrs=attrs)

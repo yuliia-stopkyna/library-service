@@ -25,6 +25,7 @@ def create_stripe_session(borrowing: Borrowing, request: Request) -> None:
     borrowing_period = (borrowing.expected_return_date - borrowing.borrow_date).days
     amount = int(book.daily_fee * borrowing_period * 100)
     success_url = reverse("payment:payment-success", request=request)
+    cancel_url = reverse("payment:payment-cancel", request=request)
 
     session = stripe.checkout.Session.create(
         line_items=[
@@ -41,6 +42,6 @@ def create_stripe_session(borrowing: Borrowing, request: Request) -> None:
         ],
         mode="payment",
         success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url="http://localhost:4242/cancel",
+        cancel_url=cancel_url + "?session_id={CHECKOUT_SESSION_ID}",
     )
     create_payment(borrowing, session)
