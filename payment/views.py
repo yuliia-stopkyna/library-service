@@ -42,3 +42,16 @@ class PaymentViewSet(
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=["GET"], detail=False, url_path="cancel", url_name="payment-cancel")
+    def cancel(self, request: Request) -> Response:
+        """Endpoint for canceled stripe payment session"""
+        session_id = request.query_params.get("session_id")
+        payment = Payment.objects.get(session_id=session_id)
+
+        serializer = PaymentSerializer(payment)
+        data = {
+            "message": "You can make a payment during the next 24 hours.",
+            **serializer.data,
+        }
+        return Response(data=data, status=status.HTTP_200_OK)
