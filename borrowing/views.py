@@ -53,6 +53,14 @@ class BorrowingViewSet(
     def perform_create(self, serializer) -> None:
         serializer.save(user=self.request.user)
 
+    def get_serializer_context(self) -> dict:
+        context = super().get_serializer_context()
+
+        if self.action == "create":
+            context["request"] = self.request
+
+        return context
+
 
 class BorrowingReturnAPIView(APIView):
     permission_classes = (IsAuthenticated,)

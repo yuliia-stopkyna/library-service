@@ -64,8 +64,10 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             book = validated_data["book"]
             borrowing = Borrowing.objects.create(**validated_data)
-            create_stripe_session(borrowing)
+
+            create_stripe_session(borrowing, self.context["request"])
             Book.objects.filter(pk=book.id).update(inventory=book.inventory - 1)
+
             message = "New borrowing created:\n" + get_borrowing_info(borrowing)
             send_telegram_notification(message)
 
