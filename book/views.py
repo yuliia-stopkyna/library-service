@@ -11,7 +11,7 @@ class BookPagination(PageNumberPagination):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.order_by("title")
     pagination_class = BookPagination
 
     def get_serializer_class(self) -> BookSerializer | BookListSerializer:
