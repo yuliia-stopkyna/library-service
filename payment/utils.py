@@ -1,5 +1,7 @@
 import stripe
 from django.conf import settings
+from rest_framework.request import Request
+from rest_framework.reverse import reverse
 
 from borrowing.models import Borrowing
 from payment.models import Payment
@@ -18,10 +20,13 @@ def create_payment(borrowing: Borrowing, session: stripe.checkout.Session) -> No
     )
 
 
-def create_stripe_session(borrowing: Borrowing) -> None:
+def create_stripe_session(borrowing: Borrowing, request: Request) -> None:
     book = borrowing.book
     borrowing_period = (borrowing.expected_return_date - borrowing.borrow_date).days
     amount = int(book.daily_fee * borrowing_period * 100)
+    success_url = reverse("payment:payment-success", request=request)
+    cancel_url = reverse("payment:payment-cancel", request=request)
+
     session = stripe.checkout.Session.create(
         line_items=[
             {
@@ -36,7 +41,7 @@ def create_stripe_session(borrowing: Borrowing) -> None:
             }
         ],
         mode="payment",
-        success_url="http://localhost:4242/success",
-        cancel_url="http://localhost:4242/cancel",
+        success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=cancel_url + "?session_id={CHECKOUT_SESSION_ID}",
     )
     create_payment(borrowing, session)
