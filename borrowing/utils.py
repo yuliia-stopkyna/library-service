@@ -11,7 +11,7 @@ def get_borrowing_info(borrowing: Borrowing) -> str:
         f"Borrow date: {borrowing.borrow_date}\n"
         f"Expected return date: {borrowing.expected_return_date}\n"
         f"Book: {borrowing.book.title}\n"
-        f"User: {borrowing.user.get_full_name()}\n"
+        f"User full name: {borrowing.user.get_full_name()}\n"
         f"User id: {borrowing.user.id}"
     )
 
