@@ -85,7 +85,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(read_only=True, many=True)
 
     class Meta:
         model = Borrowing
@@ -94,9 +93,8 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
             "borrow_date",
             "expected_return_date",
             "actual_return_date",
-            "payments",
         )
-        read_only_fields = ("id", "borrow_date", "expected_return_date", "payments")
+        read_only_fields = ("id", "borrow_date", "expected_return_date")
 
     def validate(self, attrs) -> dict:
         if self.instance.actual_return_date is not None:
