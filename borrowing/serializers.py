@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from book.models import Book
 from book.serializers import BookSerializer
 from borrowing.models import Borrowing
+from borrowing.notifications import send_telegram_notification
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -59,6 +60,16 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             book = validated_data["book"]
             borrowing = Borrowing.objects.create(**validated_data)
             Book.objects.filter(pk=book.id).update(inventory=book.inventory - 1)
+            message = (
+                "New borrowing created:\n"
+                f"id: {borrowing.id}\n"
+                f"Borrow date: {borrowing.borrow_date}\n"
+                f"Expected return date: {borrowing.expected_return_date}\n"
+                f"Book: {borrowing.book.title}\n"
+                f"User: {borrowing.user.get_full_name()}"
+            )
+            send_telegram_notification(message)
+
             return borrowing
 
 
