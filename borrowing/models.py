@@ -19,4 +19,6 @@ class Borrowing(models.Model):
         ordering = ["borrow_date"]
 
     def __str__(self) -> str:
-        return f"{self.book.title} borrowed by {self.user.get_full_name()}"
+        return (
+            f"Id {self.id}: {self.book.title} borrowed by {self.user.get_full_name()}"
+        )
