@@ -1,0 +1,4 @@
+venv/
+.idea/
+.coverage
+db.sqlite3
